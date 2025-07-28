@@ -1,28 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import axios, { AxiosInstance } from 'axios';
+import { Injectable} from '@nestjs/common';
 import { PokeResponse } from './interfaces/poke-response.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Pokemon } from 'src/pokemon/entities/pokemon.entity';
+import { Model } from 'mongoose';
+import { AxiosAdapter } from 'src/common/adapters/axios.adapter';
 
 
 @Injectable()
 export class SeedService {
   
-  private readonly axios: AxiosInstance = axios;
+
+  constructor(
+    @InjectModel(Pokemon.name)
+    private readonly pokemonModel: Model<Pokemon>,
+    private readonly http: AxiosAdapter,
+  ) {}
   
   async executeSeed() {
 
-    const { data } = await this.axios.get<PokeResponse>('https://pokeapi.co/api/v2/pokemon?limit=650');
+    await this.pokemonModel.deleteMany({});// delete * from pokemons;
 
-    const pokemons = data.results.map(({ name, url }) => {
+    const data = await this.http.get<PokeResponse>('https://pokeapi.co/api/v2/pokemon?limit=650');
+
+    const pokemonToInsert: { name: string; no: number; }[] = [];
+
+    data.results.forEach(({ name, url }) => {
       
       const segments = url.split('/');
       const no = +segments[segments.length - 2];
-      
-      return {
-        name: name,
-        no: no,
-      }
+    
+      pokemonToInsert.push({ name, no });
+
     });
 
-    return pokemons;
+    await this.pokemonModel.insertMany(pokemonToInsert);// Manera más eficiente de realizar la insercion de muchos registros a la coleccion "pokemons" haciendo solo UNA insercion. this.pokemonModel.insertMany(pokemonToInsert); es equivalente a insert into pokemon (name, no) ("p 1", 1), ("p 2", 2),...,("p 650", 650) 
+
+    return 'Seed Executed';
   }
 }

@@ -4,6 +4,7 @@ import { UpdatePokemonDto } from './dto/update-pokemon.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pokemon } from './entities/pokemon.entity';
 import { isValidObjectId, Model } from 'mongoose';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class PokemonService {
@@ -40,8 +41,15 @@ export class PokemonService {
     
   }
 
-  findAll() {
-    return `This action returns all pokemon`;
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+    return this.pokemonModel.find()
+      .skip(offset)
+      .limit(limit)
+      .sort({
+        no: 1,// ordenar por la columna "no" de manera ascendente (1)
+      })
+      .select('-__v');// this.pokemonModel.find() tiene todos los registros de la coleccion "pokemons", y de esos, se saltan los primeros "offset" (skip "offset") y a partir de ahi, solo se van a traer los "limit" pokemons (limit "limit") que estan despues de esos primeros "offset" pokemons (skip "offset"). Esos "limit" pokemons traidos, estaran ordenados en funcion de la columna "no" de manera ascendente, y vendrán sin la columna o el campo "__v".
   }
 
   async findOne(term: string) {// term tiene mas sentido semantico, ya que por un termino numerico, o por termino de nombre, o por termino de id, se va a buscar un pokemon

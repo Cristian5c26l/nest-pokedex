@@ -12,6 +12,10 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true, // limpiar bodys que viajen en las peticiones, los cuales tengan propiedades de más que las especificadas en los dtos
     forbidNonWhitelisted: true, // Arrojar bad request en caso de que en los bodys de las peticiones vengan propiedades de más que las especificadas en los dtos
+    transform: true,// Para que la informacion que fluye por los DTOs (como los query parameters que fluyen por el DTO PaginationDto), antes de ser validada por los DTOs, se transforme
+    transformOptions: {
+      enableImplicitConversion: true,// Habilitar la transformacion implicita de la informacion que fluye por los DTOs (como los query parameters que fluyen por el DTO PaginationDto)
+    }
   }));
 
   await app.listen(process.env.PORT ?? 3000);
