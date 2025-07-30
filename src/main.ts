@@ -18,6 +18,8 @@ async function bootstrap() {
     }
   }));
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000);// PORT de .env, se carga a process.env gracias a ConfigModule
+
+  console.log(`App running on port ${process.env.PORT}`);
 }
 bootstrap();

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { PokemonService } from './pokemon.service';
 import { PokemonController } from './pokemon.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,6 +9,7 @@ import { Pokemon, PokemonSchema } from './entities/pokemon.entity';
   controllers: [PokemonController],
   providers: [PokemonService],
   imports: [
+    ConfigModule,// Importar el modulo ConfigModule que contiene el ConfigService, el cual, ya viene configurado para que pueda acceder a las variables devueltas por el objeto devuelto por EnvConfiguration. Dichas variables son el resultado de mapear las variables de entorno del archivo .env cargadas por ConfigModule.forRoot() en AppModule. 
     MongooseModule.forFeature(// Importacion de modulo de mongoose para que pueda, todo lo que pertenezca al modulo o "feature" PokemonModule, pueda usar el array de modelos de mongo especificado abajo. En este caso, PokemonModule va a poder interactuar (y crear cuando se levanta la aplicacion) un modelo completo de mongoose, es decir, con una colección llamada Pokemon.name, la cual estará construida basada en las reglas del "PokemonSchema" (reglas como que el campo name y no son unique (unicos)) definidas en la clase."Pokemon", la cual, al mismo tiempo, servirá para que de dicha clase nazca una instancia la cual pueda añadirse como documento a la coleccion mencionada.
       [ 
         {// Modelo de mongoose para los pokemons (name es el nombre de la coleccion.... schema es dicha coleccion construida en base a reglas especificadas a los campos (como name y no) de dicha coleccion, las cuales estan especificadas, en este caso, en la clase o esquema Pokemon)
